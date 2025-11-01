@@ -9,6 +9,13 @@ var __dirname = /* @__PURE__ */ getDirname();
 import { normalizePath } from "vite";
 import fs from "fs";
 import path2 from "path";
+
+// src/utils/index.ts
+var isDev = process.env.NODE_ENV === "development";
+var HOT_RELOAD_EXTENSION_VITE_PORT = process.env.HOT_RELOAD_EXTENSION_VITE_PORT ? parseInt(process.env.HOT_RELOAD_EXTENSION_VITE_PORT) : 8080;
+var PLUGIN_NAME = "hot-reload-extension-vite";
+
+// src/main.ts
 var VIRT_BG = "virtual:hre:bg-reload";
 var VIRT_SP = "virtual:hre:sidepanel-reload";
 var RES_VIRT_BG = "\0" + VIRT_BG;
@@ -28,9 +35,8 @@ function hotReloadExtension(options) {
     return cleaned === target;
   };
   return {
-    name: "hot-reload-extension",
-    apply: "serve",
-    // dev only
+    name: PLUGIN_NAME,
+    // apply: 'serve', // dev only
     enforce: "post",
     // run after React/TS transforms to avoid JSX parse errors
     configResolved(cfg) {

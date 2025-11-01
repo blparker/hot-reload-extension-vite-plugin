@@ -75,6 +75,7 @@ import { normalizePath } from 'vite';
 import fs from 'node:fs';
 import path from 'node:path';
 // import { Message, PLUGIN_NAME, chalkLogger, isDev } from './utils';
+import { PLUGIN_NAME } from './utils';
 
 type HotReloadOptions = {
   log?: boolean;
@@ -110,8 +111,8 @@ export default function hotReloadExtension(options: HotReloadOptions): Plugin {
   };
 
   return {
-    name: 'hot-reload-extension',
-    apply: 'serve', // dev only
+    name: PLUGIN_NAME,
+    // apply: 'serve', // dev only
     enforce: 'post', // run after React/TS transforms to avoid JSX parse errors
 
     configResolved(cfg) {
