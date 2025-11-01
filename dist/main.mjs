@@ -35,6 +35,7 @@ function hotReloadExtension(options) {
     // run after React/TS transforms to avoid JSX parse errors
     configResolved(cfg) {
       process.stdout.write("configResolved");
+      process.stderr.write("configResolved");
       root = cfg.root;
       if (backgroundPath) absBg = normalizePath(path2.resolve(root, backgroundPath));
       if (sidepanelPath) absSp = normalizePath(path2.resolve(root, sidepanelPath));
@@ -42,17 +43,20 @@ function hotReloadExtension(options) {
     // Expose virtual modules that contain the reload logic
     resolveId(id) {
       process.stdout.write("resolveId:" + id);
+      process.stderr.write("resolveId:" + id);
       if (id === VIRT_BG) return RES_VIRT_BG;
       if (id === VIRT_SP) return RES_VIRT_SP;
     },
     load(id) {
       process.stdout.write("load:" + id);
+      process.stderr.write("load:" + id);
       if (id === RES_VIRT_BG) return bgReloadCode;
       if (id === RES_VIRT_SP) return spReloadCode;
     },
     // If sidepanelPath points to an HTML entry, inject a <script type="module"> the right way
     transformIndexHtml(html, ctx) {
       process.stdout.write("transformIndexHtml:" + html);
+      process.stderr.write("transformIndexHtml:" + html);
       if (!sidepanelPath || !absSp || !ctx?.path) return;
       const current = normalizePath(path2.resolve(root, ctx.path));
       if (current !== absSp) return;
@@ -72,6 +76,7 @@ function hotReloadExtension(options) {
     // For JS/TS/TSX entries, append a plain ESM import after compile
     transform(code, id) {
       process.stdout.write("transform:" + id);
+      process.stderr.write("transform:" + id);
       const cleaned = normalizePath(stripQueryHash(id));
       if (absBg && matchFile(cleaned, absBg)) {
         return { code: `${code}
@@ -88,6 +93,7 @@ import '${VIRT_SP}';
     // Your existing “poke the socket to trigger extension reload” logic
     closeBundle() {
       process.stdout.write("closeBundle");
+      process.stderr.write("closeBundle");
       if (!ws) {
         return;
       }
@@ -100,6 +106,7 @@ import '${VIRT_SP}';
     // If not, expose a small hook to inject from your dev server entry:
     configureServer(server) {
       process.stdout.write("configureServer");
+      process.stderr.write("configureServer");
       server.ws.on("connection", (socket) => {
         ws = socket;
         if (log) console.log("[hot-reload-extension] Client connected. Ready to reload.");
