@@ -74,6 +74,7 @@ import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import fs from 'node:fs';
 import path from 'node:path';
+// import { Message, PLUGIN_NAME, chalkLogger, isDev } from './utils';
 
 type HotReloadOptions = {
   log?: boolean;
@@ -114,6 +115,7 @@ export default function hotReloadExtension(options: HotReloadOptions): Plugin {
     enforce: 'post', // run after React/TS transforms to avoid JSX parse errors
 
     configResolved(cfg) {
+      process.stdout.write('configResolved');
       root = cfg.root;
       if (backgroundPath) absBg = normalizePath(path.resolve(root, backgroundPath));
       if (sidepanelPath) absSp = normalizePath(path.resolve(root, sidepanelPath));
@@ -121,16 +123,20 @@ export default function hotReloadExtension(options: HotReloadOptions): Plugin {
 
     // Expose virtual modules that contain the reload logic
     resolveId(id) {
+      process.stdout.write('resolveId:' + id);
       if (id === VIRT_BG) return RES_VIRT_BG;
       if (id === VIRT_SP) return RES_VIRT_SP;
     },
+
     load(id) {
+      process.stdout.write('load:' + id);
       if (id === RES_VIRT_BG) return bgReloadCode;
       if (id === RES_VIRT_SP) return spReloadCode;
     },
 
     // If sidepanelPath points to an HTML entry, inject a <script type="module"> the right way
     transformIndexHtml(html, ctx) {
+      process.stdout.write('transformIndexHtml:' + html);
       if (!sidepanelPath || !absSp || !ctx?.path) return;
       // ctx.path is the filesystem path of the HTML being processed
       const current = normalizePath(path.resolve(root, ctx.path));
@@ -151,6 +157,7 @@ export default function hotReloadExtension(options: HotReloadOptions): Plugin {
 
     // For JS/TS/TSX entries, append a plain ESM import after compile
     transform(code, id) {
+      process.stdout.write('transform:' + id);
       const cleaned = normalizePath(stripQueryHash(id));
 
       if (absBg && matchFile(cleaned, absBg)) {
@@ -166,6 +173,7 @@ export default function hotReloadExtension(options: HotReloadOptions): Plugin {
 
     // Your existing “poke the socket to trigger extension reload” logic
     closeBundle() {
+      process.stdout.write('closeBundle');
       if (!ws) {
         // Optional: console.warn('Load extension to browser...');
         return;
@@ -179,6 +187,7 @@ export default function hotReloadExtension(options: HotReloadOptions): Plugin {
     // If you previously created the websocket server elsewhere, keep that.
     // If not, expose a small hook to inject from your dev server entry:
     configureServer(server) {
+      process.stdout.write('configureServer');
       // Minimal WS that echoes FILE_CHANGE messages to clients
       server.ws.on('connection', (socket) => {
         ws = socket as unknown as WebSocket;
