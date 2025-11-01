@@ -1,10 +1,10 @@
 import { Plugin } from 'vite';
 
-type hotReloadExtensionOptions = {
-    backgroundPath: string;
-    sidepanelPath?: string;
+type HotReloadOptions = {
     log?: boolean;
+    backgroundPath?: string;
+    sidepanelPath?: string;
 };
-declare const hotReloadExtension: (options: hotReloadExtensionOptions) => Plugin;
+declare function hotReloadExtension(options: HotReloadOptions): Plugin;
 
-export { hotReloadExtension as default, type hotReloadExtensionOptions };
+export { hotReloadExtension as default };

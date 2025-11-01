@@ -7,5 +7,6 @@ export default defineConfig({
   sourcemap: false,
   clean: true,
   shims: true,
-  format: ['cjs', 'esm']
+  format: ['cjs', 'esm'],
+  external: ['vite', 'lightningcss']
 });
