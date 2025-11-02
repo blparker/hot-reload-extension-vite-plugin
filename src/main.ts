@@ -69,13 +69,14 @@
 // };
 
 // export default hotReloadExtension;
-// hotReloadExtension.ts
+
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import fs from 'node:fs';
 import path from 'node:path';
 // import { Message, PLUGIN_NAME, chalkLogger, isDev } from './utils';
-import { PLUGIN_NAME, chalkLogger } from './utils';
+import { PLUGIN_NAME } from './utils';
+import { WebSocketServer } from 'ws';
 
 type HotReloadOptions = {
   log?: boolean;
@@ -87,14 +88,16 @@ const VIRT_BG = 'virtual:hre:bg-reload';
 const VIRT_SP = 'virtual:hre:sidepanel-reload';
 const RES_VIRT_BG = '\0' + VIRT_BG;
 const RES_VIRT_SP = '\0' + VIRT_SP;
+const HRE_WS_PATH = '/__hre_ws';
 
 const stripQueryHash = (id: string) => id.split('?')[0].split('#')[0];
 
 export default function hotReloadExtension(options: HotReloadOptions): Plugin {
-  const { log, backgroundPath, sidepanelPath } = options;
+  const { backgroundPath, sidepanelPath } = options;
 
   let root = process.cwd();
-  let ws: WebSocket | null = null;
+  //   let ws: WebSocket | null = null;
+  let wss: WebSocketServer | undefined;
 
   // Load once
   const bgReloadCode = fs.readFileSync(path.resolve(__dirname, 'scripts/background-reload.js'), 'utf8');
@@ -169,14 +172,18 @@ export default function hotReloadExtension(options: HotReloadOptions): Plugin {
 
     // Your existing “poke the socket to trigger extension reload” logic
     closeBundle() {
-      if (!ws) {
-        // Optional: console.warn('Load extension to browser...');
-        return;
-      }
+      //   if (!ws) {
+      //     // Optional: console.warn('Load extension to browser...');
+      //     return;
+      //   }
+      //   setTimeout(() => {
+      //     ws?.send('FILE_CHANGE'); // or Message.FILE_CHANGE if you export it
+      //     // if (log) console.log('[hot-reload-extension] Extension Reloaded…');
+      //     if (log) chalkLogger.green('Extension Reloaded...');
+      //   }, 1000);
+      if (!wss) return;
       setTimeout(() => {
-        ws?.send('FILE_CHANGE'); // or Message.FILE_CHANGE if you export it
-        // if (log) console.log('[hot-reload-extension] Extension Reloaded…');
-        if (log) chalkLogger.green('Extension Reloaded...');
+        for (const c of wss!.clients) if (c.readyState === 1) c.send('FILE_CHANGE');
       }, 1000);
     },
 
@@ -184,11 +191,22 @@ export default function hotReloadExtension(options: HotReloadOptions): Plugin {
     // If not, expose a small hook to inject from your dev server entry:
     configureServer(server) {
       // Minimal WS that echoes FILE_CHANGE messages to clients
-      server.ws.on('connection', (socket) => {
-        ws = socket as unknown as WebSocket;
-        // if (log) console.log('[hot-reload-extension] Client connected. Ready to reload.');
-        if (log) chalkLogger.green('Client connected. Ready to reload.');
+      //   server.ws.on('connection', (socket) => {
+      //     ws = socket as unknown as WebSocket;
+      //     // if (log) console.log('[hot-reload-extension] Client connected. Ready to reload.');
+      //     if (log) chalkLogger.green('Client connected. Ready to reload.');
+      //   });
+      wss = new WebSocketServer({ noServer: true });
+
+      server.httpServer?.on('upgrade', (req, socket, head) => {
+        if (req.url?.startsWith(HRE_WS_PATH)) {
+          wss!.handleUpgrade(req, socket, head, (ws) => {
+            wss!.emit('connection', ws, req);
+          });
+        }
       });
+
+      console.log(`[hre] WS on ws://127.0.0.1:${server.config.server.port ?? 5173}${HRE_WS_PATH}`);
     }
   };
 }

@@ -1,8 +1,11 @@
-import { HOT_RELOAD_EXTENSION_VITE_PORT, Message } from '../utils';
+import { Message } from '../utils';
 /**
  * If development, this code will be appended to background script file.
  */
-const socket = new WebSocket(`ws://localhost:${HOT_RELOAD_EXTENSION_VITE_PORT}`);
+// const socket = new WebSocket(`ws://localhost:${HOT_RELOAD_EXTENSION_VITE_PORT}`);
+const PORT = 5173;
+const PATH = '/__hre_ws';
+const socket = new WebSocket(`ws://127.0.0.1:${PORT}${PATH}`);
 
 // No to let extension go to inactive state
 const keepAlive = () => setInterval(chrome.runtime.getPlatformInfo, 20e3);
