@@ -75,7 +75,7 @@ import { normalizePath } from 'vite';
 import fs from 'node:fs';
 import path from 'node:path';
 // import { Message, PLUGIN_NAME, chalkLogger, isDev } from './utils';
-import { PLUGIN_NAME } from './utils';
+import { PLUGIN_NAME, chalkLogger } from './utils';
 
 type HotReloadOptions = {
   log?: boolean;
@@ -187,7 +187,8 @@ export default function hotReloadExtension(options: HotReloadOptions): Plugin {
       }
       setTimeout(() => {
         ws?.send('FILE_CHANGE'); // or Message.FILE_CHANGE if you export it
-        if (log) console.log('[hot-reload-extension] Extension Reloaded…');
+        // if (log) console.log('[hot-reload-extension] Extension Reloaded…');
+        if (log) chalkLogger.green('Extension Reloaded...');
       }, 1000);
     },
 
@@ -199,7 +200,8 @@ export default function hotReloadExtension(options: HotReloadOptions): Plugin {
       // Minimal WS that echoes FILE_CHANGE messages to clients
       server.ws.on('connection', (socket) => {
         ws = socket as unknown as WebSocket;
-        if (log) console.log('[hot-reload-extension] Client connected. Ready to reload.');
+        // if (log) console.log('[hot-reload-extension] Client connected. Ready to reload.');
+        if (log) chalkLogger.green('Client connected. Ready to reload.');
       });
     }
   };

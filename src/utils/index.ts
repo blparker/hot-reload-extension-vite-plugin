@@ -8,7 +8,7 @@ export const isDev = process.env.NODE_ENV === 'development';
 
 export const HOT_RELOAD_EXTENSION_VITE_PORT = process.env.HOT_RELOAD_EXTENSION_VITE_PORT
   ? parseInt(process.env.HOT_RELOAD_EXTENSION_VITE_PORT)
-  : 8080;
+  : 5173;
 
 export const PLUGIN_NAME = 'hot-reload-extension-vite';
 

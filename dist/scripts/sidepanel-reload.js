@@ -2,7 +2,7 @@
 
 // src/utils/index.ts
 var isDev = process.env.NODE_ENV === "development";
-var HOT_RELOAD_EXTENSION_VITE_PORT = process.env.HOT_RELOAD_EXTENSION_VITE_PORT ? parseInt(process.env.HOT_RELOAD_EXTENSION_VITE_PORT) : 8080;
+var HOT_RELOAD_EXTENSION_VITE_PORT = process.env.HOT_RELOAD_EXTENSION_VITE_PORT ? parseInt(process.env.HOT_RELOAD_EXTENSION_VITE_PORT) : 5173;
 
 // src/scripts/sidepanel-reload.ts
 var startWebSocket = () => {
