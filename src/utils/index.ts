@@ -10,7 +10,8 @@ export const HOT_RELOAD_EXTENSION_VITE_PORT = process.env.HOT_RELOAD_EXTENSION_V
   ? parseInt(process.env.HOT_RELOAD_EXTENSION_VITE_PORT)
   : 5173;
 
-process.stdout.write('HOT_RELOAD_EXTENSION_VITE_PORT:' + HOT_RELOAD_EXTENSION_VITE_PORT + '\n');
+// process.stdout.write('HOT_RELOAD_EXTENSION_VITE_PORT:' + HOT_RELOAD_EXTENSION_VITE_PORT + '\n');
+console.log('HOT_RELOAD_EXTENSION_VITE_PORT:' + HOT_RELOAD_EXTENSION_VITE_PORT);
 
 export const PLUGIN_NAME = 'hot-reload-extension-vite';
 
